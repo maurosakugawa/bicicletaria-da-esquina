@@ -1,0 +1,21 @@
+<h2>Lista de Ordens de Serviço</h2>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Descrição</th>
+        <th>Valor</th>
+        <th>Status</th>
+        <th>Data de Criação</th>
+        <th>Funcionario</th>
+    </tr>
+    {% for os in ordens %}
+        <tr>
+            <td>{{ os.id }}</td>
+            <td>{{ os.descricao }}</td>
+            <td>{{ os.valor }}</td>
+            <td>{{ os.get_status_display }}</td>
+            <td>{{ os.data_criacao }}</td>
+            <td>{{ os.funcionario }}</td>
+        </tr>
+    {% endfor %}
+</table>
