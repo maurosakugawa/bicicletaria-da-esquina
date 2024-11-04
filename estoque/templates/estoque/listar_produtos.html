@@ -1,0 +1,23 @@
+<h2>Estoque de Produtos</h2>
+<a href="{% url 'adicionar_produto' %}">Adicionar Produto</a>
+<table>
+    <tr>
+        <th>Nome</th>
+        <th>Categoria</th>
+        <th>Preço</th>
+        <th>Quantidade</th>
+        <th>Ações</th>
+    </tr>
+    {% for produto in produtos %}
+        <tr>
+            <td>{{ produto.nome }}</td>
+            <td>{{ produto.get_categoria_display }}</td>
+            <td>{{ produto.preco }}</td>
+            <td>{{ produto.quantidade }}</td>
+            <td>
+                <a href="{% url 'editar_produto' produto.id %}">Editar</a>
+                <a href="{% url 'remover_produto' produto.id %}">Remover</a>
+            </td>
+        </tr>
+    {% endfor %}
+</table>
