@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <head>
+        <link rel="stylesheet" type="text/css" href="{% static 'estoque/styles.css' %}">
+    </head>
+
+    <div class="container">
+        <h2>Estoque de Produtos</h2>
+        <a href="{% url 'adicionar_produto' %}" class="btn btn-primary mb-3">Adicionar Produto</a>
+        
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Categoria</th>
+                    <th>Preço</th>
+                    <th>Quantidade</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for produto in produtos %}
+                    <tr>
+                        <td>{{ produto.nome }}</td>
+                        <td>{{ produto.categoria }}</td>
+                        <td>R$ {{ produto.preco|floatformat:2 }}</td>
+                        <td>{{ produto.quantidade }}</td>
+                        <td>
+                            <a href="{% url 'editar_produto' produto.id %}" class="btn btn-sm btn-warning">Editar</a>
+                            <a href="{% url 'remover_produto' produto.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja remover este produto?');">Remover</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">Nenhum produto encontrado.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
