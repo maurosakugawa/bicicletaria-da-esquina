@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Detalhes da Ordem de Serviço #{{ ordem_servico.id }}</h2>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <p><strong>Cliente:</strong> {{ ordem_servico.cliente }}</p>
+            <p><strong>Descrição do Serviço:</strong> {{ ordem_servico.descricao_servico }}</p>
+            <p><strong>Status:</strong> {{ ordem_servico.get_status_display }}</p>
+            <p><strong>Valor Total:</strong> R$ {{ ordem_servico.valor_total }}</p>
+        </div>
+        
+        <div class="col-md-6">
+            <h4>Alterar Status</h4>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="status" class="form-label">Status</label>
+                    <select name="status" id="status" class="form-select">
+                        {% for status, status_display in ordem_servico.STATUS_CHOICES %}
+                            <option value="{{ status }}" {% if ordem_servico.status == status %}selected{% endif %}>{{ status_display }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Salvar Alteração</button>
+            </form>
+        </div>
+    </div>
+
+    <h3 class="mt-5">Produtos Utilizados</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Produto</th>
+                <th>Quantidade</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for produto_usado in ordem_servico.produtoordemservico_set.all %}
+                <tr>
+                    <td>{{ produto_usado.produto.nome }}</td>
+                    <td>{{ produto_usado.quantidade }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Lista de Ordens de Serviço</h2>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Descrição</th>
+        <th>Valor</th>
+        <th>Status</th>
+        <th>Data de Criação</th>
+        <th>Funcionario</th>
+        <th>Detalhes</th>
+    </tr>
+    {% for os in ordens %}
+        <tr>
+            <td>{{ os.id }}</td>
+            <td>{{ os.descricao }}</td>
+            <td>{{ os.valor }}</td>
+            <td>{{ os.get_status_display }}</td>
+            <td>{{ os.data_criacao }}</td>
+            <td>{{ os.funcionario }}</td>
+            <td><a href="{% url 'detalhes_ordem_servico' os.id %}">Ver Detalhes</a></td>
+        </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}
+
