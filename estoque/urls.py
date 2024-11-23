@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required, permission_required
 from django.urls import path
 from . import views
 
@@ -7,3 +8,4 @@ urlpatterns = [
     path('editar/<int:produto_id>/', views.editar_produto, name='editar_produto'),
     path('remover/<int:produto_id>/', views.remover_produto, name='remover_produto'),
 ]
+
