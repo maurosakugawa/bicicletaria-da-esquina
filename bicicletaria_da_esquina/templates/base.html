@@ -12,36 +12,17 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">Bicicletaria da Esquina</a>
+            <a class="navbar-brand" href="{% url 'dashboard' %}">Bicicletaria da Esquina</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
-                    <!-- Aba de Ordens de Serviço com Sub-abas -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownOrdens" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Ordens de Serviço
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownOrdens">
-                            <li><a class="dropdown-item" href="{% url 'criar_os' %}">Criar OS</a></li>
-                            <li><a class="dropdown-item" href="{% url 'listar_os' %}">Listar OS</a></li>
-                        </ul>
-                    </li>
 
-                    <li class="nav-item"><a class="dropdown-item" href="{% url 'listar_produtos' %}">Estoque</a></li>
+                <li><a class="dropdown-item" href="{% url 'criar_os' %}">Criar OS</a></li>
+                <li><a class="dropdown-item" href="{% url 'listar_os' %}">Listar OS</a></li>
+                <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
 
-                    <!-- Aba de Contas com Sub-abas -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownContas" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Contas
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownContas">
-                            <li><a class="dropdown-item" href="{% url 'login' %}">Login</a></li>
-                            <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
-                            <li><a class="dropdown-item" href="{% url 'dashboard' %}">Dashboard</a></li>
-                        </ul>
-                    </li>
                 </ul>
             </div>
         </div>
