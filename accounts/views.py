@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from estoque.models import Produto
+from django.http import HttpResponse
 
 def login_view(request):
     if request.method == 'POST':
@@ -19,6 +21,14 @@ def logout_view(request):
     logout(request)
     return redirect('login')
 
-@login_required  # Protegendo a view de dashboard
+@login_required
 def dashboard_view(request):
-    return render(request, 'accounts/dashboard.html')
+    request.user.refresh_from_db()
+    tem_permissao_estoque = request.user.has_perm('estoque.view_produto')
+    
+    produtos = Produto.objects.all() if tem_permissao_estoque else None
+
+    return render(request, 'accounts/dashboard.html', {
+        'produtos': produtos,
+        'tem_permissao_estoque': tem_permissao_estoque,
+    })
