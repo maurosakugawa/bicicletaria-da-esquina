@@ -1,8 +1,12 @@
-
-{% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-    <h1>Dashboard</h1>
-    <p>Conteúdo específico do Dashboard aqui.</p>
+    <h1>Bem-vindo, {{ user.get_full_name }}!</h1>
+
+    {% if tem_permissao_estoque %}
+
+        {% include 'estoque/listar_produtos.html' %}
+    {% endif %}
+
 {% endblock %}
 
