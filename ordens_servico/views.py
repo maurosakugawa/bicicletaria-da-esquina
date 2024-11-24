@@ -5,6 +5,10 @@ from .models import OrdemServico, ProdutoOrdemServico
 from estoque.models import Produto
 from .forms import OrdemServicoForm, ProdutoOrdemServicoFormSet 
 from django.utils import timezone
+from django.http import HttpResponse
+from xhtml2pdf import pisa
+from django.template.loader import render_to_string
+
 
 @login_required
 def criar_os(request):
@@ -59,3 +63,37 @@ def detalhes_ordem_servico(request, ordem_servico_id):
         
     # Passa o objeto ordem_servico para o template
     return render(request, 'ordens_servico/detalhes_ordem_servico.html', {'ordem_servico': ordem_servico})
+
+def imprimir_ordem_servico(request, ordem_servico_id):
+    # Pega a ordem de serviço pelo ID fornecido
+    ordem_servico = get_object_or_404(OrdemServico, id=ordem_servico_id)
+
+    # Cálculo do total de cada produto e total geral da ordem de serviço
+    produto_ordem_servicos = ordem_servico.produtoordemservico_set.all()
+    total_geral = 0
+
+    for produto_ordem in produto_ordem_servicos:
+        produto_ordem.total = produto_ordem.produto.preco * produto_ordem.quantidade
+        total_geral += produto_ordem.total
+
+    # Adiciona o total geral à ordem de serviço
+    ordem_servico.total_geral = total_geral
+
+    # Renderiza o template HTML para o relatório da ordem de serviço
+    html = render_to_string('ordens_servico/relatorio_ordem_servico.html', {
+        'ordem_servico': ordem_servico,
+        'produto_ordem_servicos': produto_ordem_servicos,
+    })
+
+    # Cria um objeto HttpResponse com tipo de conteúdo de PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename=ordem_servico_{ordem_servico.id}.pdf'
+
+    # Usa o xhtml2pdf para gerar o PDF a partir do HTML renderizado
+    pisaStatus = pisa.CreatePDF(html, dest=response)
+
+    # Se ocorrer algum erro durante a conversão, exibe o erro
+    if pisaStatus.err:
+        return HttpResponse('Erro ao gerar o PDF', status=500)
+
+    return response
