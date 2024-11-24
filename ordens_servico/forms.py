@@ -6,6 +6,7 @@ class OrdemServicoForm(forms.ModelForm):
     class Meta:
         model = OrdemServico
         fields = ['cliente', 'descricao_servico', 'valor_total', 'status']
+        exclude = ['funcionario']  # Exclui o campo funcionário
 
         widgets = {
             'cliente': forms.TextInput(attrs={'class': 'form-control'}),

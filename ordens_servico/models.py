@@ -25,8 +25,8 @@ class OrdemServico(models.Model):
 
 class ProdutoOrdemServico(models.Model):
     produto = models.ForeignKey(Produto, on_delete=models.CASCADE)
-    ordens_servico = models.ForeignKey(OrdemServico, on_delete=models.CASCADE)
+    ordem_servico = models.ForeignKey(OrdemServico, on_delete=models.CASCADE)  # Corrigido para singular
     quantidade = models.PositiveIntegerField("Quantidade Utilizada")
 
     class Meta:
-        unique_together = ('produto', 'ordens_servico')
+        unique_together = ('produto', 'ordem_servico')

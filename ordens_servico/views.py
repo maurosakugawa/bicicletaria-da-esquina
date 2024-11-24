@@ -8,27 +8,42 @@ from django.utils import timezone
 from django.http import HttpResponse
 from xhtml2pdf import pisa
 from django.template.loader import render_to_string
+from django.db.models import F
 
-
+ 
 @login_required
 def criar_os(request):
     if request.method == 'POST':
         form = OrdemServicoForm(request.POST)
         formset = ProdutoOrdemServicoFormSet(request.POST)
         if form.is_valid() and formset.is_valid():
-            ordem_servico = form.save()
+            # Não salva imediatamente para adicionar o funcionário
+            ordem_servico = form.save(commit=False)
+            ordem_servico.funcionario = request.user  # Atribui o funcionário logado
+            ordem_servico.save()  # Agora salva a ordem de serviço
+
+            # Salva os produtos associados à ordem de serviço
             for produto_form in formset:
-                produto = produto_form.cleaned_data['produto']
-                quantidade = produto_form.cleaned_data['quantidade']
-                ProdutoOrdemServico.objects.create(produto=produto, ordem_servico=ordem_servico, quantidade=quantidade)
-                produto.quantidade -= quantidade
-                produto.save()
-            messages.success(request, "Ordem de Serviço criada e estoque atualizado.")
-            return redirect('listar_ordens_servico')
+                if produto_form.cleaned_data:  # Verifica se o formulário tem dados válidos
+                    produto = produto_form.cleaned_data['produto']
+                    quantidade = produto_form.cleaned_data['quantidade']
+                    ProdutoOrdemServico.objects.create(
+                        produto=produto,
+                        ordem_servico=ordem_servico,
+                        quantidade=quantidade
+                    )
+                    # Atualiza o estoque do produto
+                    produto.quantidade = F('quantidade') - quantidade
+                    produto.save()
+
+            messages.success(request, "Ordem de Serviço criada com sucesso!")
+            return redirect('listar_os')
     else:
         form = OrdemServicoForm()
         formset = ProdutoOrdemServicoFormSet()
+
     return render(request, 'ordens_servico/criar_os.html', {'form': form, 'formset': formset})
+
 
 @login_required
 def listar_os(request):
