@@ -19,17 +19,29 @@ def criar_os(request):
             # Salva a ordem de serviço, atribuindo o usuário logado como funcionário
             ordem_servico = form.save(commit=False)
             ordem_servico.funcionario = request.user  # ID do usuário logado
+            ordem_servico.valor_total = 0  # Inicializa o valor total
             ordem_servico.save()
             
             # Salva os produtos associados à ordem de serviço
             for produto_form in formset:
                 if produto_form.cleaned_data:  # Ignora formulários vazios no formset
+                    quantidade = produto_form.cleaned_data['quantidade']
+                    produto = produto_form.cleaned_data['produto']
+                    valor_unitario = produto.preco
+                    valor_total_produto = quantidade * valor_unitario
+                    
                     ProdutoOrdemServico.objects.create(
-                        produto=produto_form.cleaned_data['produto'],
+                        produto=produto,
                         ordem_servico=ordem_servico,
-                        quantidade=produto_form.cleaned_data['quantidade'],
-                        valor=produto_form.cleaned_data.get('valor', 0.0),
+                        quantidade=quantidade,
+                        valor=valor_total_produto,
                     )
+                    
+                    # Incrementa o valor total da OS
+                    ordem_servico.valor_total += valor_total_produto
+            
+            # Salva novamente para registrar o valor total calculado
+            ordem_servico.save()
             
             messages.success(request, "Ordem de Serviço criada com sucesso!")
             return redirect('listar_os')
@@ -41,6 +53,7 @@ def criar_os(request):
         'form': form,
         'formset': formset
     })
+
 
 
 @login_required
