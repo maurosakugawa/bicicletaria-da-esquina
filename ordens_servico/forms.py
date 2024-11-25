@@ -21,6 +21,6 @@ class OrdemServicoForm(forms.ModelForm):
 class ProdutoOrdemServicoForm(forms.ModelForm):
     class Meta:
         model = ProdutoOrdemServico
-        fields = ['produto', 'quantidade']
+        fields = ['produto', 'ordem_servico', 'valor', 'quantidade'] 
 
 ProdutoOrdemServicoFormSet = inlineformset_factory(OrdemServico, ProdutoOrdemServico, form=ProdutoOrdemServicoForm, extra=1)        

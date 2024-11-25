@@ -18,7 +18,8 @@
             <td>{{ os.descricao }}</td>
             <td>{{ os.valor }}</td>
             <td>{{ os.get_status_display }}</td>
-            <td>{{ os.data_criacao }}</td>
+            <td>{{ os.data|default:"Data inválida" }}</td>
+
             <td>{{ os.funcionario }}</td>
             <td><a href="{% url 'detalhes_ordem_servico' os.id %}">Ver Detalhes</a></td>
         </tr>

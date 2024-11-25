@@ -1,48 +1,46 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import OrdemServico, ProdutoOrdemServico
+from .models import OrdemServico, ProdutoOrdemServico, F
 from estoque.models import Produto
 from .forms import OrdemServicoForm, ProdutoOrdemServicoFormSet 
 from django.utils import timezone
 from django.http import HttpResponse
 from xhtml2pdf import pisa
 from django.template.loader import render_to_string
-from django.db.models import F
 
- 
 @login_required
 def criar_os(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = OrdemServicoForm(request.POST)
         formset = ProdutoOrdemServicoFormSet(request.POST)
         if form.is_valid() and formset.is_valid():
-            # Não salva imediatamente para adicionar o funcionário
-            ordem_servico = form.save(commit=False)
-            ordem_servico.funcionario = request.user  # Atribui o funcionário logado
-            ordem_servico.save()  # Agora salva a ordem de serviço
 
+            # Salva a ordem de serviço, atribuindo o usuário logado como funcionário
+            ordem_servico = form.save(commit=False)
+            ordem_servico.funcionario = request.user  # ID do usuário logado
+            ordem_servico.save()
+            
             # Salva os produtos associados à ordem de serviço
             for produto_form in formset:
-                if produto_form.cleaned_data:  # Verifica se o formulário tem dados válidos
-                    produto = produto_form.cleaned_data['produto']
-                    quantidade = produto_form.cleaned_data['quantidade']
+                if produto_form.cleaned_data:  # Ignora formulários vazios no formset
                     ProdutoOrdemServico.objects.create(
-                        produto=produto,
+                        produto=produto_form.cleaned_data['produto'],
                         ordem_servico=ordem_servico,
-                        quantidade=quantidade
+                        quantidade=produto_form.cleaned_data['quantidade'],
+                        valor=produto_form.cleaned_data.get('valor', 0.0),
                     )
-                    # Atualiza o estoque do produto
-                    produto.quantidade = F('quantidade') - quantidade
-                    produto.save()
-
+            
             messages.success(request, "Ordem de Serviço criada com sucesso!")
             return redirect('listar_os')
     else:
         form = OrdemServicoForm()
         formset = ProdutoOrdemServicoFormSet()
 
-    return render(request, 'ordens_servico/criar_os.html', {'form': form, 'formset': formset})
+    return render(request, 'ordens_servico/criar_os.html', {
+        'form': form,
+        'formset': formset
+    })
 
 
 @login_required
@@ -83,22 +81,21 @@ def imprimir_ordem_servico(request, ordem_servico_id):
     # Pega a ordem de serviço pelo ID fornecido
     ordem_servico = get_object_or_404(OrdemServico, id=ordem_servico_id)
 
-    # Cálculo do total de cada produto e total geral da ordem de serviço
-    produto_ordem_servicos = ordem_servico.produtoordemservico_set.all()
-    total_geral = 0
+    # Obtém os produtos relacionados à ordem de serviço
+    produto_usado = ordem_servico.produtoordemservico_set.all()
+    
+    # Calcula o total geral da ordem de serviço
+    total_geral = sum(
+        produto.quantidade * produto.produto.preco for produto in produto_usado
+    )
 
-    for produto_ordem in produto_ordem_servicos:
-        produto_ordem.total = produto_ordem.produto.preco * produto_ordem.quantidade
-        total_geral += produto_ordem.total
-
-    # Adiciona o total geral à ordem de serviço
-    ordem_servico.total_geral = total_geral
-
-    # Renderiza o template HTML para o relatório da ordem de serviço
-    html = render_to_string('ordens_servico/relatorio_ordem_servico.html', {
+    # Renderiza o template HTML para o relatório
+    context = {
         'ordem_servico': ordem_servico,
-        'produto_ordem_servicos': produto_ordem_servicos,
-    })
+        'produto_usado': produto_usado,
+        'total_geral': total_geral,
+    }
+    html = render_to_string('ordens_servico/relatorio_ordem_servico.html', context)
 
     # Cria um objeto HttpResponse com tipo de conteúdo de PDF
     response = HttpResponse(content_type='application/pdf')
@@ -112,3 +109,5 @@ def imprimir_ordem_servico(request, ordem_servico_id):
         return HttpResponse('Erro ao gerar o PDF', status=500)
 
     return response
+
+
