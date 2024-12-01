@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Excluir Ordem de Serviço</h2>
+    <p>Tem certeza de que deseja excluir a Ordem de Serviço #{{ ordem_servico.id }}?</p>
+    <p><strong>Cliente:</strong> {{ ordem_servico.cliente }}</p>
+    <p><strong>Descrição do Serviço:</strong> {{ ordem_servico.descricao_servico }}</p>
+    <p><strong>Status:</strong> {{ ordem_servico.get_status_display }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Excluir</button>
+        <a href="{% url 'ordens_servico:detalhes_ordem_servico' ordem_servico.id %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}
+
