@@ -78,7 +78,7 @@
                         <td>{{ produto.produto.nome }}</td>
                         <td>{{ produto.quantidade }}</td>
                         <td>R$ {{ produto.produto.preco|floatformat:2 }}</td>
-                        <td>R$ {{ produto.quantidade|floatformat:2|multiply:produto.produto.preco|floatformat:2 }}</td>
+                        <td>R$ {{ produto.valor|floatformat:2 }}</td>
 
                     </tr>
                 {% empty %}

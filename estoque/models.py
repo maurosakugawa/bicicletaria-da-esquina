@@ -4,7 +4,7 @@ class Produto(models.Model):
     CATEGORIA_CHOICES = [
         ('bicicleta', 'Bicicleta'),
         ('peca', 'Peça'),
-        ('acessorio', 'Acessório')
+        ('acessorio', 'Acessório'),
     ]
 
     nome = models.CharField("Nome do Produto", max_length=100)
@@ -13,5 +13,7 @@ class Produto(models.Model):
     quantidade = models.PositiveIntegerField("Quantidade em Estoque", default=0)
     descricao = models.TextField("Descrição do Produto", blank=True)
 
+        
     def __str__(self):
         return f"{self.nome} ({self.categoria})"
+

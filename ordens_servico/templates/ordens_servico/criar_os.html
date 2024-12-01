@@ -1,16 +1,178 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Criar Ordem de Serviço</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <h3>Produtos Utilizados</h3>
-    {{ formset.management_form }}
-    {% for form in formset %}
-        {{ form.as_p }}
-    {% endfor %}
-    <button type="submit">Criar Ordem de Serviço</button>
-</form>
-{% endblock %}
+<div class="container mt-4">
+    <h2>Criar Ordem de Serviço</h2>
+    <form method="post">
+        {% csrf_token %}
 
+        <div class="form-group">
+            <label for="id_cliente">Cliente</label>
+            {{ ordem_servico_form.cliente }}
+        </div>
+        <div class="form-group">
+            <label for="id_descricao_servico">Descrição do Serviço</label>
+            {{ ordem_servico_form.descricao_servico }}
+        </div>
+        <div class="form-group">
+            <label for="id_status">Status</label>
+            {{ ordem_servico_form.status }}
+        </div>
+        
+        <h3>Produtos Utilizados</h3>
+        {{ formset.management_form }} 
+    
+        <table class="table" id="produtos-table">
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Quantidade</th>
+                    <th>Valor Unitário</th>
+                    <th>Subtotal</th>
+                    <th>Remover</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for form in formset %}
+                    <tr class="produto-form" data-form-index="{{ forloop.counter0 }}">
+                        <td>{{ form.produto }}</td>
+                        <td>{{ form.quantidade }}</td>
+                        <td><input type="text" class="form-control valor-unitario" readonly></td>
+                        <td><input type="text" class="form-control subtotal" readonly></td>
+                        <td>
+                            <button type="button" class="btn btn-danger" onclick="removerProduto({{ forloop.counter0 }})">
+                                Remover
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>        
+        
+        <div class="form-group">
+            <label for="id_valor_total">Valor Total</label>
+            <input type="text" class="form-control" id="id_valor_total" name="valor_total" readonly>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Salvar Ordem de Serviço</button>
+        <a href="{% url 'ordens_servico:listar_os' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const produtosTable = document.getElementById('produtos-table')?.querySelector('tbody');
+    const valorTotalInput = document.getElementById('id_valor_total');
+
+    if (!produtosTable || !valorTotalInput) {
+        return;
+    }
+
+    // Função para remover um produto
+    function removerProduto(index) {
+        const row = document.querySelector(`.produto-form[data-form-index="${index}"]`);
+        if (row) {
+
+            const deleteField = row.querySelector('[name$="-DELETE"]');
+            if (deleteField) {
+                deleteField.checked = true;
+            }
+
+            // Esconde a linha na tabela (opcional, apenas para efeito visual)
+            row.style.display = 'none';
+
+            // Desabilita os campos para garantir que não sejam enviados ao salvar
+            row.querySelectorAll('input, select').forEach(input => {
+                input.disabled = true;
+                input.value = '';
+            });
+
+            // Atualiza o valor total após a remoção
+            updateValorTotal();
+        }
+    }
+
+    // Atualiza o valor total da ordem de serviço
+    function updateValorTotal() {
+        let valorTotal = 0;
+        document.querySelectorAll('.produto-form').forEach(row => {
+            
+            const deleteField = row.querySelector('[name$="-DELETE"]');
+            if (deleteField && deleteField.checked) {
+                return;
+            }
+
+            const subtotal = parseFloat(row.querySelector('.subtotal').value || 0);
+            valorTotal += subtotal;
+        });
+        valorTotalInput.value = valorTotal.toFixed(2);
+    }
+
+    // Atualiza o preço unitário e subtotal
+    function updatePrecoAndSubtotal(event) {
+        const produtoId = event.target.value;
+        if (!produtoId) return;
+
+        fetch(`/estoque/api/get_produto_preco/${produtoId}/`)
+            .then(response => response.json())
+            .then(data => {
+                const row = event.target.closest('.produto-form');
+                const valorUnitarioField = row.querySelector('.valor-unitario');
+                const subtotalField = row.querySelector('.subtotal');
+
+                if (data.preco) {
+                    valorUnitarioField.value = data.preco;
+                    const quantidade = parseFloat(row.querySelector('.quantidade-input').value || 0);
+                    subtotalField.value = (quantidade * parseFloat(data.preco)).toFixed(2);
+                } else {
+                    valorUnitarioField.value = '';
+                    subtotalField.value = '';
+                }
+
+                // Atualiza o valor total
+                updateValorTotal();
+            })
+            .catch(error => console.error('Erro ao buscar preço:', error));
+    }
+
+    // Atualiza o subtotal quando a quantidade muda
+    function updateSubtotal(event) {
+        const row = event.target.closest('.produto-form');
+        const quantidade = parseFloat(event.target.value) || 0;
+        const valorUnitarioField = row.querySelector('.valor-unitario');
+        const subtotalField = row.querySelector('.subtotal');
+
+        const valorUnitario = parseFloat(valorUnitarioField.value || 0);
+        subtotalField.value = (quantidade * valorUnitario).toFixed(2);
+
+        // Atualiza o valor total
+        updateValorTotal();
+    }
+
+    // Aplica os eventos aos formulários existentes
+    document.querySelectorAll('.produto-select').forEach(select => {
+        select.addEventListener('change', updatePrecoAndSubtotal);
+    });
+
+    document.querySelectorAll('.quantidade-input').forEach(input => {
+        input.addEventListener('input', updateSubtotal);
+    });
+
+    // Aplica os eventos aos formulários já existentes
+    document.querySelectorAll('.produto-form').forEach(form => {
+        const produtoSelect = form.querySelector('.produto-select');
+        const quantidadeInput = form.querySelector('.quantidade-input');
+
+        if (produtoSelect) {
+            produtoSelect.addEventListener('change', updatePrecoAndSubtotal);
+        }
+
+        if (quantidadeInput) {
+            quantidadeInput.addEventListener('input', updateSubtotal);
+        }
+    });
+});
+
+</script>
+
+{% endblock %}

@@ -1,66 +1,71 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
 from .models import OrdemServico, ProdutoOrdemServico, F
 from estoque.models import Produto
 from .forms import OrdemServicoForm, ProdutoOrdemServicoFormSet 
 from django.utils import timezone
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from xhtml2pdf import pisa
 from django.template.loader import render_to_string
+from django.db import transaction
+from django.urls import reverse
 
 @login_required
+@permission_required('ordens_servico.add_ordemservico', raise_exception=True)
 def criar_os(request):
     if request.method == "POST":
-        form = OrdemServicoForm(request.POST)
+        ordem_servico_form = OrdemServicoForm(request.POST)
         formset = ProdutoOrdemServicoFormSet(request.POST)
-        if form.is_valid() and formset.is_valid():
 
-            # Salva a ordem de serviço, atribuindo o usuário logado como funcionário
-            ordem_servico = form.save(commit=False)
-            ordem_servico.funcionario = request.user  # ID do usuário logado
-            ordem_servico.valor_total = 0  # Inicializa o valor total
+        # Valida os formulários
+        if ordem_servico_form.is_valid() and formset.is_valid():
+            # Salva a ordem de serviço, mas não comita ainda (sem salvar no banco)
+            ordem_servico = ordem_servico_form.save(commit=False)
+            ordem_servico.funcionario = request.user
+            
+            # Salvar a ordem de serviço primeiro
             ordem_servico.save()
-            
-            # Salva os produtos associados à ordem de serviço
-            for produto_form in formset:
-                if produto_form.cleaned_data:  # Ignora formulários vazios no formset
-                    quantidade = produto_form.cleaned_data['quantidade']
-                    produto = produto_form.cleaned_data['produto']
-                    valor_unitario = produto.preco
-                    valor_total_produto = quantidade * valor_unitario
-                    
-                    ProdutoOrdemServico.objects.create(
-                        produto=produto,
-                        ordem_servico=ordem_servico,
-                        quantidade=quantidade,
-                        valor=valor_total_produto,
-                    )
-                    
-                    # Incrementa o valor total da OS
-                    ordem_servico.valor_total += valor_total_produto
-            
-            # Salva novamente para registrar o valor total calculado
+
+            valor_total = 0
+            for form in formset:
+                produto = form.cleaned_data.get('produto')
+                quantidade = form.cleaned_data.get('quantidade')
+
+                if produto and quantidade:
+                    produto_ordem_servico = form.save(commit=False)
+                    produto_ordem_servico.ordem_servico = ordem_servico                    
+                    produto_ordem_servico.save()
+
+                    valor_total += produto.preco * quantidade
+
+            # Atribui o valor total calculado
+            ordem_servico.valor_total = valor_total
             ordem_servico.save()
-            
-            messages.success(request, "Ordem de Serviço criada com sucesso!")
-            return redirect('listar_os')
+
+            return redirect('ordens_servico:listar_os')
+
+        else:
+            pass
     else:
-        form = OrdemServicoForm()
+        ordem_servico_form = OrdemServicoForm()
         formset = ProdutoOrdemServicoFormSet()
 
     return render(request, 'ordens_servico/criar_os.html', {
-        'form': form,
-        'formset': formset
+        'ordem_servico_form': ordem_servico_form,
+        'formset': formset,
     })
 
 
 
 @login_required
+@permission_required('ordens_servico.view_ordemservico', raise_exception=True)
 def listar_os(request):
     ordens = OrdemServico.objects.all() if request.user.groups.filter(name="admin").exists() else OrdemServico.objects.filter(funcionario=request.user)
     return render(request, 'ordens_servico/listar_os.html', {'ordens': ordens})
 
+@login_required
+@permission_required('ordens_servico.view_produtoordemservico', raise_exception=True)
 def detalhes_ordem_servico(request, ordem_servico_id):
     # Pega a ordem de serviço pelo ID fornecido
     ordem_servico = get_object_or_404(OrdemServico, id=ordem_servico_id)
@@ -71,11 +76,10 @@ def detalhes_ordem_servico(request, ordem_servico_id):
         if novo_status in dict(OrdemServico.STATUS_CHOICES).keys():
             ordem_servico.status = novo_status
 
-            # Se o status for 'concluido', remova os produtos do estoque
             if ordem_servico.status == 'concluido' and ordem_servico.produtoordemservico_set.exists():
                 for produto_usado in ordem_servico.produtoordemservico_set.all():
                     produto = produto_usado.produto
-                    produto.estoque -= produto_usado.quantidade
+                    produto.quantidade -= produto_usado.quantidade
                     produto.save()
 
             # Garantir que a data não seja nula
@@ -85,7 +89,7 @@ def detalhes_ordem_servico(request, ordem_servico_id):
             ordem_servico.save()
             
             # Redireciona para a página de listagem das ordens de serviço após a atualização
-            return redirect('listar_os')
+            return redirect('ordens_servico:listar_os')
         
     # Passa o objeto ordem_servico para o template
     return render(request, 'ordens_servico/detalhes_ordem_servico.html', {'ordem_servico': ordem_servico})
@@ -99,7 +103,7 @@ def imprimir_ordem_servico(request, ordem_servico_id):
     
     # Calcula o total geral da ordem de serviço
     total_geral = sum(
-        produto.quantidade * produto.produto.preco for produto in produto_usado
+        produto.quantidade * produto.valor for produto in produto_usado
     )
 
     # Renderiza o template HTML para o relatório
@@ -123,4 +127,26 @@ def imprimir_ordem_servico(request, ordem_servico_id):
 
     return response
 
+@login_required
+def atualizar_status_ordem_servico(request, ordem_servico_id):
+    ordem_servico = get_object_or_404(OrdemServico, id=ordem_servico_id)
+    
+    if request.method == 'POST':
+        novo_status = request.POST.get('status')
+        ordem_servico.status = novo_status
+        ordem_servico.save() 
+
+    return redirect('ordens_servico:detalhes_ordem_servico', ordem_servico_id=ordem_servico.id)
+
+@login_required
+@permission_required('ordens_servico.delete_ordemservico', raise_exception=True)
+def excluir_ordem_servico(request, pk):
+    ordem_servico = get_object_or_404(OrdemServico, pk=pk)
+
+    if request.method == "POST":
+        ordem_servico.delete()
+        messages.success(request, "Ordem de Serviço excluída com sucesso!")
+        return redirect(reverse('ordens_servico:listar_os')) 
+
+    return render(request, 'ordens_servico/confirmar_exclusao.html', {'ordem_servico': ordem_servico})
 

@@ -3,10 +3,13 @@
 {% block content %}
     <h1>Bem-vindo, {{ user.get_full_name }}!</h1>
 
-    {% if tem_permissao_estoque %}
-
+    {% if perms.estoque.view_produto %}
         {% include 'estoque/listar_produtos.html' %}
+    {% else %}
+        <p>Você não tem permissão para visualizar os produtos.</p>
     {% endif %}
+
+
 
 {% endblock %}
 

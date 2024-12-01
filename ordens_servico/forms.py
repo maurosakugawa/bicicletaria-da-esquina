@@ -5,22 +5,34 @@ from .models import OrdemServico, ProdutoOrdemServico
 class OrdemServicoForm(forms.ModelForm):
     class Meta:
         model = OrdemServico
-        fields = ['cliente', 'descricao_servico', 'valor_total', 'status']
-        exclude = ['funcionario']  # Exclui o campo funcionário
-
+        fields = ['cliente', 'descricao_servico', 'status']
         widgets = {
-            'cliente': forms.TextInput(attrs={'class': 'form-control'}),
+            'cliente': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nome do cliente'}),
             'descricao_servico': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 3,
+                'placeholder': 'Descreva o serviço realizado',
             }),
-            'valor_total': forms.NumberInput(attrs={'class': 'form-control'}),
             'status': forms.Select(attrs={'class': 'form-control'}),
         }
-        
+
 class ProdutoOrdemServicoForm(forms.ModelForm):
     class Meta:
         model = ProdutoOrdemServico
-        fields = ['produto', 'ordem_servico', 'valor', 'quantidade'] 
+        fields = ['produto', 'quantidade']
+        widgets = {
+            'produto': forms.Select(attrs={'class': 'form-control produto-select'}),
+            'quantidade': forms.NumberInput(attrs={'class': 'form-control quantidade-input'}),
+        }
 
-ProdutoOrdemServicoFormSet = inlineformset_factory(OrdemServico, ProdutoOrdemServico, form=ProdutoOrdemServicoForm, extra=1)        
+
+
+# Inline Formset para associar vários produtos a uma Ordem de Serviço
+ProdutoOrdemServicoFormSet = inlineformset_factory(
+    OrdemServico,
+    ProdutoOrdemServico,
+    form=ProdutoOrdemServicoForm,
+   # extra=1,
+    extra=4,
+    can_delete=True 
+)

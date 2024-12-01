@@ -1,0 +1,72 @@
+/* Styles para o table */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th, .table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+.table th {
+    background-color: #f4f4f4;
+    text-align: left;
+}
+
+.table-hover tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Styles para o span */
+
+.badge {
+    padding: 0.4em 0.7em;
+    font-size: 0.9em;
+    color: #fff;
+    border-radius: 0.3em;
+}
+
+.badge.text-bg-warning {
+    background-color: #ffc107;
+}
+
+.badge.text-bg-success {
+    background-color: #28a745;
+}
+
+.badge.text-bg-secondary {
+    background-color: #6c757d;
+}
+
+.badge-aquamarine {
+    background-color: aquamarine;
+    color: white;
+}
+
+.badge-aquamarine:hover {
+    background-color: #7fffd4; 
+}
+
+.badge-danger-custom {
+    background-color: #dc3545;
+    color: white;
+}
+
+.badge-danger-custom:hover {
+    background-color: #a82734; 
+}
+
+.btn {
+    text-decoration: none;
+    color: #fff;
+    padding: 0.4em 0.8em;
+    border-radius: 0.3em;
+    background-color: #007bff;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+

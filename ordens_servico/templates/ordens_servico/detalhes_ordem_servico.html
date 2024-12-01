@@ -9,7 +9,7 @@
             <p><strong>Cliente:</strong> {{ ordem_servico.cliente }}</p>
             <p><strong>Descrição do Serviço:</strong> {{ ordem_servico.descricao_servico }}</p>
             <p><strong>Status:</strong> {{ ordem_servico.get_status_display }}</p>
-            <p><strong>Valor Total:</strong> R$ {{ ordem_servico.valor_total }}</p>
+
         </div>
         
         <div class="col-md-6">
@@ -35,6 +35,8 @@
             <tr>
                 <th>Produto</th>
                 <th>Quantidade</th>
+                <th>Valor Unitário</th>
+                <th>Subtotal</th>
             </tr>
         </thead>
         <tbody>
@@ -42,14 +44,25 @@
                 <tr>
                     <td>{{ produto_usado.produto.nome }}</td>
                     <td>{{ produto_usado.quantidade }}</td>
+                    <td>R$ {{ produto_usado.produto.preco }}</td>
+                    <td>R$ {{ produto_usado.valor }}</td>  <!-- Exibe o valor (subtotal) salvo no banco -->
                 </tr>
             {% endfor %}
         </tbody>
     </table>
+
+    <h4 class="mt-4">Valor Total: R$ {{ ordem_servico.valor_total }}</h4> <!-- Exibe o valor total da ordem de serviço -->
+
 </div>
+
 <div>
-    <a href="{% url 'imprimir_ordem_servico' ordem_servico.id %}" target="_blank" class="btn btn-primary">
+    <a href="{% url 'ordens_servico:imprimir_ordem_servico' ordem_servico.id %}" target="_blank" class="btn btn-primary">
         Imprimir Relatório
     </a>
+
+    <a href="{% url 'ordens_servico:excluir_os' ordem_servico.id %}" class="btn btn-danger">
+        Excluir Ordem de Serviço
+    </a>
 </div>
+
 {% endblock %}

@@ -14,13 +14,11 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
-
-
 INSTALLED_APPS = [
     'django_extensions',
     'accounts',
-    'ordens_servico',
     'estoque',
+    'ordens_servico',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -38,6 +36,11 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 
 ROOT_URLCONF = 'bicicletaria_da_esquina.urls'
 

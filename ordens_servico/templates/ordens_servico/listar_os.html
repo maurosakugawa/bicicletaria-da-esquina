@@ -1,30 +1,55 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<h2>Lista de Ordens de Serviço</h2>
-<table>
-    <tr>
-        <th>ID</th>
-        <th>Descrição</th>
-        <th>Valor</th>
-        <th>Status</th>
-        <th>Data de Criação</th>
-        <th>Funcionario</th>
-        <th>Detalhes</th>
-    </tr>
-    {% for os in ordens %}
-        <tr>
-            <td>{{ os.id }}</td>
-            <td>{{ os.descricao }}</td>
-            <td>{{ os.valor }}</td>
-            <td>{{ os.get_status_display }}</td>
-            <td>{{ os.data|default:"Data inválida" }}</td>
+    <head>
+        <link rel="stylesheet" type="text/css" href="{% static 'ordens_servico/os_styles.css' %}">
 
-            <td>{{ os.funcionario }}</td>
-            <td><a href="{% url 'detalhes_ordem_servico' os.id %}">Ver Detalhes</a></td>
-        </tr>
-    {% endfor %}
-</table>
+<div class="container mt-4">
+    <h2 class="mb-4 text-center">Lista de Ordens de Serviço</h2>
 
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-bordered">
+            <thead class="table-secondary">
+                <tr>
+                    <th>ID</th>
+                    <th>Descrição</th>
+                    <th>Valor (R$)</th>
+                    <th>Estaod</th>
+                    <th>Data de Criação</th>
+                    <th>Criou a ordem</th>
+                    <th>Detalhes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for os in ordens %}
+                    <tr>
+                        <td>{{ os.id }}</td>
+                        <td>{{ os.descricao_servico|default:"Não informado" }}</td>
+                        <td>{{ os.valor_total|floatformat:2|default:"R$ 0,00" }}</td>
+                        <td>
+                            {% if os.status == 'pendente' %}
+                                <span class="badge text-bg-warning">Pendente</span>
+                            {% elif os.status == 'concluido' %}
+                                <span class="badge text-bg-success">Concluído</span>
+                            {% elif os.status == 'cancelado' %}
+                                <span class="badge badge-danger-custom">Cancelado</span>
+                            {% else %}
+                                <span class="badge badge-aquamarine">Desconhecido</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ os.data|date:"d/m/Y H:i" }}</td>
+                        <td>{{ os.funcionario.get_full_name|default:"Desconhecido" }}</td>
+                        <td>
+                            <a href="{% url 'ordens_servico:detalhes_ordem_servico' os.id %}" class="btn btn-primary btn-sm">
+                                Ver Detalhes
+                            </a>
+                        </td>
+                        
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock %}
-
