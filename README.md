@@ -77,7 +77,7 @@ python manage.py loaddata fixtures/data_db.json
 ```bash
 python manage.py runserver
 ```
-Acesse o sistema em: [http://127.0.0.1:8000/accounts/login](http://127.0.0.1:8000/accounts/login)
+Acesse o sistema em: [http://127.0.0.1:8000/accounts/login](http://127.0.0.1:8000/accounts/login)  
 Caso queira acessar o Django Admin: [http://127.0.0.1:8000/admin](http://127.0.0.1:8000/admin)
 ### Banco de Dados
 
