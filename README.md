@@ -41,13 +41,13 @@ cd bicicletaria-da-esquina
 
 Linux/MacOS:
 ```bash
-python3 -m venv venv
-source venv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 Windows:
 ```bash
-python -m venv venv
-venv\Scripts\activate
+python -m venv .venv
+.venv\Scripts\activate
 ```
 ### 3. Instale as dependências
 ```bash
@@ -61,6 +61,7 @@ Crie um arquivo `.env` na raiz do projeto e configure as variáveis necessárias
 
 ### 5. Aplique as migrações
 ```bash
+python manage.py makemigrations
 python manage.py migrate
 ```
 
@@ -76,7 +77,8 @@ python manage.py loaddata fixtures/data_db.json
 ```bash
 python manage.py runserver
 ```
-Acesse o sistema em: [http://127.0.0.1:8000](http://127.0.0.1:8000)
+Acesse o sistema em: [http://127.0.0.1:8000/accounts/login](http://127.0.0.1:8000/accounts/login)
+Caso queira acessar o Django Admin: [http://127.0.0.1:8000/admin](http://127.0.0.1:8000/admin)
 ### Banco de Dados
 
 -   Este sistema utiliza o **SQLite3** como banco de dados padrão.
