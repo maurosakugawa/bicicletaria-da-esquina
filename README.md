@@ -24,7 +24,7 @@ Este projeto é um sistema básico de gerenciamento para lojas de bicicletas, de
 git clone https://github.com/maurosakugawa/bicicletaria-da-esquina.git
 cd bicicletaria-da-esquina
 ```
-**Nota**: Caso mude o nome padrão da pasta, utilize o novo nome da pasta no lugae de biciletaria-da-esquina.
+**Nota**: Caso mude o nome padrão da pasta, substitua biciletaria-da-esquina pelo nome de sua pasta.
 
 ----------
 
