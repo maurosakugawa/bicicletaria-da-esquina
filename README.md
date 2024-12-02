@@ -21,9 +21,10 @@ Este projeto é um sistema básico de gerenciamento para lojas de bicicletas, de
 
 ### **1. Clone o repositório**
 ```bash
-git clone https://github.com/seu-usuario/seu-repositorio.git
-cd seu-repositorio
+git clone https://github.com/maurosakugawa/bicicletaria-da-esquina.git
+cd bicicletaria-da-esquina
 ```
+**Nota**: Caso mude o nome padrão da pasta, utilize o novo nome da pasta no lugae de biciletaria-da-esquina.
 
 ----------
 
@@ -62,8 +63,6 @@ Crie um arquivo `.env` na raiz do projeto e configure as variáveis necessárias
 ```bash
 python manage.py migrate
 ```
-
-
 
 ### **6. Popule o banco de dados (opcional)**
 
