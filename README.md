@@ -100,7 +100,8 @@ Acesse o sistema em: [http://127.0.0.1:8000](http://127.0.0.1:8000)
     -   **Username**: `col`
     -   **Senha**: `senha1234`
     - permissões: colaborador (muito limitado)
-**Atenção**: Altere a senha padrão ao usar o sistema em produção.
+
+    **Atenção**: Altere a senha padrão ao usar o sistema em produção.
 
 ### **Contribuição**
 
