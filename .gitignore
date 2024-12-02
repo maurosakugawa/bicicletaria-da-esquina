@@ -2,7 +2,6 @@ __pycache__/
 *.pyc
 .env
 .venv/
-db.sqlite3
 /static/
 # Ignore IDE and system files
 .vscode/
