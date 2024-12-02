@@ -68,9 +68,9 @@ python manage.py migrate
 
 Caso deseje iniciar com dados de exemplo (usuários e permissões):
 ```bash
-python manage.py loaddata fixtures/dados_iniciais.json
+python manage.py loaddata fixtures/data_db.json
 ```
-**Nota**: O arquivo `dados_iniciais.json` contém dados básicos para teste, incluindo usuários e permissões. Consulte a seção [Banco de Dados](#banco-de-dados) para mais detalhes.
+**Nota**: O arquivo `data_db.json` contém dados básicos para teste, incluindo usuários e permissões. Consulte a seção [Banco de Dados](#banco-de-dados) para mais detalhes.
 
 ### 7. Inicie o servidor
 ```bash
