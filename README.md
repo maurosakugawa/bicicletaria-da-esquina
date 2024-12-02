@@ -86,7 +86,7 @@ Acesse o sistema em: [http://127.0.0.1:8000](http://127.0.0.1:8000)
 	```bash
 	python manage.py loaddata fixtures/data_db.json
 	```
-### **Usuários e Permissões (Dados de Teste)**
+### **Usuários e Permissões pré instalados no db.sqlite3 (Dados de Teste)**
 
 -   **Usuário Administrador**:
     -   **Username**: `admin`
