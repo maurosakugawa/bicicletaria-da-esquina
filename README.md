@@ -93,11 +93,13 @@ Acesse o sistema em: [http://127.0.0.1:8000](http://127.0.0.1:8000)
     -   **Senha**: `senha1234`
     -   Permissões: Superusuário.
 -   **Usuário Colaborador**:
-     -   **Username**: `FuncionarioDesconhecido`
+    -   **Username**: `FuncionarioDesconhecido`
     -   **Senha**: `senha1234`
+    -  Permissões: funcionario (limitado)
 -   **Usuário Funcionario**:
-     -   **Username**: `col`
+    -   **Username**: `col`
     -   **Senha**: `senha1234`
+    - permissões: colaborador (muito limitado)
 **Atenção**: Altere a senha padrão ao usar o sistema em produção.
 
 ### **Contribuição**
